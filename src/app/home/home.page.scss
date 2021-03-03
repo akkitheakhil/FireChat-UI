@@ -1,27 +1,72 @@
-#container {
-  text-align: center;
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  .content {
+    align-self: center;
+    flex-grow: 1;
+    width: 500px;
+    margin: -20px 0;
+  }
+  .nav {
+    bottom: 0;
+    position: absolute;
+    z-index: 999;
+    align-self: center;
+    width: 500px;
+    height: 80px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    background: #fff !important;
+    box-shadow: 30px 10px 30px #5757581f;
+    display: flex;
+    align-items: center;
+    i {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+      img {
+        height: 30px;
+        opacity: 0.6;
+        cursor: pointer;
+      }
+
+      ion-icon {
+        cursor: pointer;
+        font-size: 32px;
+        color: #050406;
+
+      }
+
+      .badge {
+        position: absolute;
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+        background: green;
+        bottom: -5px;
+        right: 45px;
+      }
+
+      &.active {
+        img {
+          opacity: 1;
+        }
+      }
+    }
+  }
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
+@media only screen and (max-width: 600px) {
+  .content,
+  nav {
+    width: 100% !important;
+  }
 }

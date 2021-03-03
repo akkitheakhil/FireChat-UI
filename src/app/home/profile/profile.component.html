@@ -1,0 +1,46 @@
+<div class="content">
+  <div class="header">
+    <h1>Profile</h1>
+    <i><img src="assets/icon/edit-button.svg" (click)="userPhoto.click()"/></i>
+    <div class="profile-info">
+      <img [src]="getPictureUrl(userInfo.uid)" onerror="this.src = 'assets/icon/defaultuserimage.svg'"/>
+      <h3>{{ userInfo.displayName }}</h3>
+    </div>
+  </div>
+
+  <input
+    type="file"
+    id="file"
+    #userPhoto
+    (change)="onFileSelected($event)"
+    name="image"
+    autocomplete="off"
+    accept="image/png, image/jpeg"
+  />
+  <div class="container">
+    <h3>Notifications</h3>
+    <div class="notification-card">
+      <p class="friend-req">Friend Requests</p>
+      <span *ngIf="coonectionRequests.length <= 0">
+        <p>No new notifications</p>
+      </span>
+      <ng-container *ngFor="let item of coonectionRequests">
+        <div class="userinfo">
+          <img [src]="getPictureUrl(item.requestedUserId)" onerror="this.src = 'assets/icon/defaultuserimage.svg'"/>
+          <div class="user-profile">
+            <h5>{{ item.requestedUserName }}</h5>
+            <p>Send you a friend request</p>
+          </div>
+          <div class="action-btns">
+            <div class="dimiss" (click)="dismiss(item._id)">
+              <img src="assets/icon/close.svg" />
+            </div>
+            <div class="accept" (click)="accept(item._id)">
+              <img src="assets/icon/check-mark.svg" />
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

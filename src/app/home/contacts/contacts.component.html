@@ -1,0 +1,50 @@
+<div class="content">
+  <div class="header">
+    <h1>Contacts</h1>
+    <div class="add-btn" (click)="openContactSearch()">
+      <span>+</span>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input
+      [formControl]="isSearchingFormControl"
+      type="search"
+      class="search-input"
+      id="search"
+      autocomplete="off"
+      placeholder="Seach"
+    />
+  </div>
+  <h3>Favorites</h3>
+  <div class="favorites">
+    <ng-container *ngFor="let contact of favs">
+      <div class="fav-chat-heads" (click)="openMessage(contact)">
+        <img
+          [src]="getPictureUrl(contact.uid)"
+          onerror="this.src = 'assets/icon/defaultuserimage.svg'"
+        />
+        <p>{{ contact.displayName }}</p>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="favs?.length <= 0">
+      <p>No favourite contacts added</p>
+    </ng-container>
+  </div>
+
+  <div class="contacts-list">
+    <span *ngFor="let contact of contactsResult">
+      <div class="contact-card" (click)="openMessage(contact)">
+        <img
+          [src]="getPictureUrl(contact.uid)"
+          onerror="this.src = 'assets/icon/defaultuserimage.svg'"
+        />
+        <div class="info">
+          <p>{{ contact.displayName }}</p>
+          <span>{{ contact.email }}</span>
+        </div>
+        <!-- <div class="badge">
+        </div> -->
+      </div>
+    </span>
+  </div>
+</div>

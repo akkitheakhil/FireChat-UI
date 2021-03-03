@@ -1,0 +1,36 @@
+<ion-header [translucent]="true"> </ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div class="container">
+    <div class="back-btn">
+      <i><img src="assets/icon/back-left-curved-arrow.svg" alt="back button" [routerLink]="['/getstarted']"></i>
+    </div>
+    <div class="register-container">
+      <h1>
+        Let's get you registered.
+      </h1>
+
+      <h2>We are so thrilled to have you.</h2>
+      <form  [formGroup] ="registerForm" class="form">
+        <div class="input username" [ngClass]="{'error': registerForm.controls.displayName.invalid &&  registerForm.controls.displayName.touched && registerForm.controls.displayName.dirty}">
+          <input type="text" formControlName="displayName"  name="username" id="username" placeholder="Display Name" autocomplete="off">
+        </div>
+        <div class="input username" [ngClass]="{'error': registerForm.controls.email.invalid && registerForm.controls.email.touched && registerForm.controls.email.dirty}">
+          <input type="email" formControlName="email" name="email" id="email" placeholder="Email" autocomplete="off">
+        </div>
+        <div class="input password" [ngClass]="{'error': registerForm.controls.password.invalid && registerForm.controls.password.touched && registerForm.controls.password.dirty}">
+          <input [type]="isPassword ? 'password' : 'text'" formControlName="password"  name="password" id="password" autocomplete="off" placeholder="Password"> <i><img src="assets/icon/eye.svg" alt="show/hide" (click)="showHidePassword()"></i>
+        </div>
+      </form>
+
+
+      <div class="action-bar">
+        <p>Already have an account? <span class="login-btn" [routerLink]="['/login']"><b> Sign-in</b></span></p>
+        <div class="register-btn" (click)="register()">
+          Register
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

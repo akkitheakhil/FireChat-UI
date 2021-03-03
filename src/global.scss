@@ -24,3 +24,33 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.ion-loader {
+  --background: #222;
+  --spinner-color: #fff;
+  color: #fff;
+}
+
+.custom-ion-modal{
+  --background: #fff;
+  --height: 100%;
+  --width: 100%;
+}
+
+// .ion-alert{
+//   --background: #222;
+//   color: #fff;
+// }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-transition: "color 9999s ease-out, background-color 9999s ease-out";
+    -webkit-transition-delay: 9999s;
+}

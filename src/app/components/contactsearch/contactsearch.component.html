@@ -1,0 +1,59 @@
+<ion-header [translucent]="true"> </ion-header>
+
+<div class="content">
+  <div class="container">
+    <div class="header">
+      <div class="back-btn">
+        <i (click)="dismiss()"
+          ><img src="assets/icon/back-left-curved-arrow.svg" alt="back button"
+        /></i>
+      </div>
+      <h1>Add Contact</h1>
+    </div>
+
+    <div class="search-container">
+      <div class="search-bar">
+        <input
+          [(ngModel)]="emailSearch"
+          type="search"
+          class="search-input"
+          id="search"
+          autocomplete="off"
+          placeholder="Seach"
+        />
+      </div>
+      <div class="search-btn" (click)="search()">
+        <img src="assets/icon/search.svg" alt="search" />
+      </div>
+    </div>
+
+    <div class="contacts-container">
+      <div class="contact-card" *ngIf="contact">
+        <img [src]="getPictureUrl(contact.uid)" onerror="this.src = 'assets/icon/defaultuserimage.svg'"/>
+        <div class="userinfo">
+          <h5>{{ contact.displayName }}</h5>
+          <span>{{ contact.email }}</span>
+        </div>
+        <div
+          class="action"
+          (click)="addContact(contact)"
+          *ngIf="!contact.isFriend && !contact.hasRequested"
+        >
+          <p>Add</p>
+        </div>
+        <div
+          class="action"
+          (click)="addContact(contact)"
+          *ngIf="contact.hasRequested"
+        >
+          <p>Send</p>
+        </div>
+      </div>
+      <div class="contact-card" *ngIf="!contact && hasSearched">
+        <div class="userinfo">
+          <h5>No user data found</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

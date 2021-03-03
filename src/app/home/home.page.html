@@ -1,20 +1,31 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+<ion-header [translucent]="true"> </ion-header>
+<div class="container">
+  <div class="content">
+    <router-outlet></router-outlet>
   </div>
-</ion-content>
+
+  <div class="nav">
+
+    <i [routerLink]="['/home/dashboard']" routerLinkActive="active" (click)="navChange('dashboard')">
+      <!-- <ion-icon src="assets/icon/conversation.svg"></ion-icon> -->
+      <!-- <img alt="message" src="assets/icon/conversation.svg" /> -->
+      <ion-icon name="chatbubbles{{currentNav === 'dashboard' ? '': '-outline'}}"></ion-icon>
+      <span class="badge" *ngIf="messageBadge"></span>
+    </i>
+    <i [routerLink]="['/home/contacts']" routerLinkActive="active" (click)="navChange('contacts')"
+      >
+      <ion-icon name="people{{currentNav === 'contacts' ? '': '-outline'}}"></ion-icon>
+      <span class="badge" *ngIf="contactBadge"></span>
+    </i>
+    <i [routerLink]="['/home/profile']" routerLinkActive="active" (click)="navChange('notifications')"
+      >
+      <ion-icon name="person{{currentNav === 'notifications' ? '': '-outline'}}"></ion-icon>
+      <span class="badge" *ngIf="friendRequest"></span>
+    </i>
+    <i [routerLink]="['/home/settings']" routerLinkActive="active" (click)="navChange('settings')"
+      >
+      <!-- <img alt="settings" src="assets/icon/settings.svg" /> -->
+      <ion-icon name="settings{{currentNav === 'settings' ? '': '-outline'}}"></ion-icon>
+    </i>
+  </div>
+</div>

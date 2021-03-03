@@ -1,0 +1,38 @@
+<div class="content">
+  <div class="header">
+    <h1>FireChat</h1>
+  </div>
+  <div class="msg-container">
+    <div class="messages">
+      <h2>Direct Message</h2>
+    </div>
+    <div class="message-list">
+
+      <ng-container *ngFor="let item of messageCollection">
+        <div class="message" (click)="openMessage(item.id, item.displayName, item.email)">
+          <ion-avatar>
+            <img [src]="getPictureUrl(item.id)" onerror="this.src = 'assets/icon/defaultuserimage.svg'"/>
+          </ion-avatar>
+          <div class="info">
+            <h5>{{item.displayName}}</h5>
+            <p class="message-text">{{item?.messages[item?.messages?.length-1]?.message}}</p>
+          </div>
+          <div class="time">
+            <p>{{item?.messages[item?.messages?.length-1]?.timeStamp | dateago }}</p>
+            <span class="badge" *ngIf="!item?.messages[item?.messages.length-1]?.hasRead"></span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="messageCollection.length <= 0">
+        <div class="message">
+          <div class="info">
+            <h5> No messages to show.</h5>
+          </div>
+
+        </div>
+
+      </ng-container>
+
+    </div>
+  </div>
+</div>

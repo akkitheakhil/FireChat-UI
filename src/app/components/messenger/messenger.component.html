@@ -1,0 +1,37 @@
+<ion-header [translucent]="true"> </ion-header>
+<div class="content">
+  <div class="container">
+    <div class="header">
+      <div class="back-btn">
+        <i (click)="dismiss()"><img src="assets/icon/back-left-curved-arrow.svg" alt="back button"></i>
+      </div>
+      <ion-avatar>
+        <img [src]="getPictureUrl(uid)" onerror="this.src = 'assets/icon/defaultuserimage.svg'" class="avatar"/>
+      </ion-avatar>
+      <div class="userinfo">
+        <h5>{{displayName}}</h5>
+        <p>{{email}}</p>
+      </div>
+    </div>
+
+    <div class="message-container" #scrollMe>
+
+      <ng-container *ngFor="let item of messages?.messages">
+        <div class="message-box" [ngClass]="item.senderId === UserInfo.uid ? 'user' : 'friend' ">
+          <p>{{item?.message}}</p>
+          <span>{{item?.timeStamp | date: 'h:mm a'}}</span>
+        </div>
+      </ng-container>
+
+    <div class="action-bar">
+      <!-- <div class="text-area">
+        <input type="text" name="send" id="send">
+      </div> -->
+      <textarea id="textarea" class="text-area" name="text-area" rows="2" [(ngModel)]="messageText"></textarea>
+      <div class="send-btn" (click)="sendMessage(messageText)">
+        <img src="assets/icon/send.svg" alt="Send button">
+      </div>
+    </div>
+  </div>
+
+</div>
