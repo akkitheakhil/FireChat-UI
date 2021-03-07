@@ -1,15 +1,14 @@
-import { AfterViewChecked, AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FirebaseApp } from '@angular/fire';
-import { ModalController } from '@ionic/angular';
-import { send } from 'process';
-import { Subject, fromEvent, Observable, Subscription } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActionSheetController, ModalController } from '@ionic/angular';
+import { Subject} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FirebaseUser } from 'src/app/models/firebaseUser.model';
 import { Messages, MessageText, SendMessage } from 'src/app/models/messages.model';
-import { User } from 'src/app/models/user.model';
 import { CommonService } from 'src/app/services/common.service';
+import { DataFactoryService } from 'src/app/services/data-factory.service';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { environment } from 'src/environments/environment';
+
 
 
 @Component({
@@ -17,7 +16,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './messenger.component.html',
   styleUrls: ['./messenger.component.scss'],
 })
-export class MessengerComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class MessengerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Data passed in by componentProps
   @Input() uid: string;
@@ -28,11 +27,16 @@ export class MessengerComponent implements OnInit, OnDestroy, AfterViewChecked {
   $Desstroy = new Subject();
   messageText: string;
   messages: Messages = new Messages();
-  resizeObservable$: Observable<Event>;
-  resizeSubscription$: Subscription;
   messageCollection: Messages[];
   @ViewChild('scrollMe') element: ElementRef;
-  constructor(private modalCtrl: ModalController, private commonService: CommonService, private firebaseService: FirebaseService) {
+
+  constructor(
+    private modalCtrl: ModalController,
+    private commonService: CommonService,
+    private firebaseService: FirebaseService,
+    public actionSheetController: ActionSheetController,
+    private dataFactory: DataFactoryService
+    ) {
   }
 
   ngOnInit() {
@@ -40,17 +44,16 @@ export class MessengerComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.UserInfo = this.firebaseService.currentUser;
     this.getMessages();
     this.getMessageSubsciptions();
-
   }
 
-  ngAfterViewChecked(): void {
-    this.element.nativeElement.scrollTop = this.element.nativeElement.scrollHeight;
+  ngAfterViewInit(): void {
+    this.scrollTop();
   }
 
-  scrollChatIntoView() {
-    const objDiv = document.querySelector(".message-container");
-    objDiv.scrollTop = objDiv.scrollHeight;
-    console.log(objDiv.scrollIntoView)
+  scrollTop() {
+    setTimeout(() => {
+      this.element.nativeElement.scrollTop = this.element.nativeElement.scrollHeight;
+    }, 100);
   }
 
   dismiss() {
@@ -60,59 +63,34 @@ export class MessengerComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   getMessages() {
-    this.messageCollection = JSON.parse(localStorage.getItem('messagesCollection')) || [];
+    this.messageCollection = [];
+    this.messageCollection = this.dataFactory.retriveMessageData;
     this.messages = this.messageCollection?.find(col => col.id === this.uid) || new Messages();
     this.setHasRead();
+    this.scrollTop();
   }
 
-  saveMessages(message: MessageText) {
-    const collection: Messages[] = JSON.parse(localStorage.getItem('messagesCollection')) || [];
-    if (collection.length <= 0) {
-      const newColl: Messages = new Messages();
-      newColl.id = this.uid;
-      newColl.email = this.email;
-      newColl.displayName = this.displayName;
-      newColl.messages = [];
-      collection.push(newColl);
-    }
-    collection?.find(col => col.id === this.uid)?.messages?.push(message);
-    localStorage.setItem('messagesCollection', JSON.stringify(collection));
-  }
+  sendMessage() {
+    if(this.messageText) {
+      const sendMessage: SendMessage = new SendMessage();
+      sendMessage.message = this.messageText;
+      sendMessage.recieverEmail = this.email;
+      sendMessage.recieverId = this.uid;
+      sendMessage.recieverDisplayName = this.displayName;
 
-  saveNewMessages(message: MessageText) {
-    const collection: Messages[] = JSON.parse(localStorage.getItem('messagesCollection')) || [];
-    if (collection.length <= 0) {
-      const newColl: Messages = new Messages();
-      newColl.id = message.senderId;
-      newColl.email = message.senderEmail;
-      newColl.displayName = message.senderDisplayName;
-      newColl.messages = [];
-      collection.push(newColl);
+      this.messageText = '';
+      this.commonService.sendMessage(sendMessage).pipe(takeUntil(this.$Desstroy)).subscribe((data: MessageText) => {
+        data.hasRead = true;
+        this.dataFactory.storeOneMessageData = data;
+      });
     }
-    collection?.find(col => col.id === message.senderId)?.messages?.push(message);
-    localStorage.setItem('messagesCollection', JSON.stringify(collection));
   }
 
   getMessageSubsciptions() {
-    this.commonService.recieveMessage().pipe(takeUntil(this.$Desstroy)).subscribe((data: MessageText) => {
-      console.log(data);
-      if (this.messages.id === data.senderId) {
-        this.messages.messages.push(data);
+    this.commonService.subscribeToNewMessages.pipe(takeUntil(this.$Desstroy)).subscribe((data: MessageText) => {
+      if(data) {
+        this.getMessages();
       }
-      this.saveNewMessages(data);
-    });
-  }
-
-  sendMessage(text: string) {
-    const sendMessage: SendMessage = new SendMessage();
-    sendMessage.message = this.messageText;
-    sendMessage.recieverEmail = this.email;
-    sendMessage.recieverId = this.uid;
-    this.commonService.sendMessage(sendMessage).pipe(takeUntil(this.$Desstroy)).subscribe((data: MessageText) => {
-      data.hasRead = true;
-      this.messages.messages.push(data);
-      this.messageText = '';
-      this.saveMessages(data);
     });
   }
 
@@ -123,9 +101,40 @@ export class MessengerComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-
   getPictureUrl(uid): string {
     return `${environment.BASE_FIREBASE_STORAGE_URL}${uid}%2FprofilePicture%2Fprofile?alt=media`;
+  }
+
+  async presentActionSheet() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Actions',
+      cssClass: 'custom-action-message',
+      mode: 'ios',
+      buttons: [{
+        text: 'Clear Chat',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+         this.clearChatFromStorage();
+        }
+      },
+      {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
+  }
+
+  clearChatFromStorage() {
+    this.dataFactory.clearChat(this.uid);
+    this.messageCollection = [];
+    this.messages = new Messages();
+    this.scrollTop();
   }
 
   ngOnDestroy(): void {

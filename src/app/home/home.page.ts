@@ -3,7 +3,9 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FirebaseUser } from '../models/firebaseUser.model';
+import { MessageText } from '../models/messages.model';
 import { CommonService } from '../services/common.service';
+import { DataFactoryService } from '../services/data-factory.service';
 import { FirebaseService } from '../services/firebase.service';
 
 @Component({
@@ -20,15 +22,25 @@ export class HomePage implements OnInit, OnDestroy{
   contactBadge: boolean = false;
   friendRequest: boolean = false;
   currentNav = 'dashboard';
-
-  constructor(private afAuth: FirebaseService, private router: Router, private commonService: CommonService,private cdr: ChangeDetectorRef) {}
-
+  currentState: string;
+  constructor(
+    private afAuth: FirebaseService,
+    private router: Router,
+    private commonService: CommonService,
+    private cdr: ChangeDetectorRef,
+    private dataFactory: DataFactoryService
+    ) {}
 
   ngOnInit(): void {
     this.user = this.afAuth.currentUser;
     if(!this.user) this.router.navigate(['getstarted']);
     this.getNotifications();
     this.subscriptToNotifications();
+    console.log()
+    const routeArr = this.router.url.split('/');
+    this.currentNav = routeArr[routeArr.length-1];
+    this.commonService.pusherConnectionStateSubscription();
+    this.connectionState();
   }
 
   getNotifications() {
@@ -53,7 +65,6 @@ export class HomePage implements OnInit, OnDestroy{
       default:
         break;
     }
-
   }
 
   subscriptToNotifications() {
@@ -64,8 +75,9 @@ export class HomePage implements OnInit, OnDestroy{
 
   subscribeToMessages() {
     try {
-      this.commonService.recieveMessage().pipe(takeUntil(this.$OnDestroy)).subscribe((data) => {
+      this.commonService.recieveMessage().pipe(takeUntil(this.$OnDestroy)).subscribe((data: MessageText) => {
         this.setNotificationBadge({key: 'message', val: true});
+        this.dataFactory.storeOneMessageData = data;
       });
     } catch (error) {
 
@@ -90,6 +102,17 @@ export class HomePage implements OnInit, OnDestroy{
     } catch (error) {
 
     }
+  }
+
+  connectionState() {
+    this.commonService.pusherConnectionState.pipe(takeUntil(this.$OnDestroy)).subscribe((data) => {
+      if(!data?.state) return;
+      console.log('Connection State => ', data?.state);
+      this.currentState = data?.state;
+      if(data?.state === 'Disconnected') {
+        window.location.reload();
+      }
+    })
   }
 
   navChange(value) {

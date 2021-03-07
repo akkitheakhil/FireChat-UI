@@ -5,6 +5,7 @@ import { sha256 } from 'js-sha256';
 import { FirebaseUser } from '../models/firebaseUser.model';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { finalize } from 'rxjs/operators';
+import { DataFactoryService } from './data-factory.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,16 +15,11 @@ export class FirebaseService {
 
   userData;
 
-  constructor(public afAuth: AngularFireAuth,  private storage: AngularFireStorage, private db: AngularFirestore) {
-    this.afAuth.authState.subscribe((user) => {
-      if(user) {
-        this.userData = user;
-        localStorage.setItem('user', JSON.stringify(this.userData));
-      } else {
-        this.userData = null;
-        localStorage.setItem('user', JSON.stringify(this.userData));
-      }
-    });
+  constructor(
+    public afAuth: AngularFireAuth,
+    private storage: AngularFireStorage,
+    private db: AngularFirestore) {
+    this.checkAuthState();
   }
 
   async login(email: string, password: string) {
@@ -42,7 +38,7 @@ export class FirebaseService {
   async logout() {
     const res = await this.afAuth.signOut();
     this.userData = null;
-    localStorage.setItem('user', JSON.stringify(this.userData));
+    this.clearAllUserData();
     return true;
   }
 
@@ -77,6 +73,25 @@ export class FirebaseService {
           });
         })).subscribe()
     });
+  }
+
+
+  checkAuthState() {
+    this.afAuth.authState.subscribe((user) => {
+      if(user) {
+        this.userData = user;
+        localStorage.setItem('user', JSON.stringify(this.userData));
+      } else {
+        this.userData = null;
+        localStorage.setItem('user', JSON.stringify(this.userData));
+      }
+    });
+  }
+
+  clearAllUserData() {
+    localStorage.setItem('user', JSON.stringify(null));
+    localStorage.setItem('messagesCollection', JSON.stringify([]));
+    localStorage.setItem('favs', JSON.stringify([]));
   }
 
   updateProfilePicture(url) {

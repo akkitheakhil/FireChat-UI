@@ -9,6 +9,8 @@
   .header {
     display: flex;
     height: 80px;
+    align-items: center;
+    justify-content: space-between;
     .back-btn {
       i img {
         height: 30px;
@@ -18,30 +20,35 @@
       margin: 0px 10px;
     }
 
-    // .avatar {
-    //   height: 50px;
-    //   width: 50px;
-    //   border-radius: 50%;
-    //   margin-left: 30px;
-    //   object-fit: fill;
-    // }
-
-    .userinfo {
-      margin: 0px 10px;
+    .user-profile{
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      flex-grow: 1;
+      .userinfo {
+        margin: 0px 10px;
+        display: flex;
+        flex-direction: column;
 
-      h5,
-      p {
-        margin: 0;
-        color: #bdc1c6;
-      }
+        h5,
+        p {
+          margin: 0;
+          color: #bdc1c6;
+        }
 
-      h5 {
-        text-transform: capitalize;
-        font-weight: 600;
+        h5 {
+          text-transform: capitalize;
+          font-weight: 600;
+        }
       }
     }
+
+    ion-icon {
+      color: #bdc1c6;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+
   }
 
   .message-container {

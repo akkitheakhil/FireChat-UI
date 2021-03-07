@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { error } from 'protractor';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MessengerComponent } from 'src/app/components/messenger/messenger.component';
 import { Messages, MessageText } from 'src/app/models/messages.model';
 import { CommonService } from 'src/app/services/common.service';
+import { DataFactoryService } from 'src/app/services/data-factory.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -11,27 +14,26 @@ import { environment } from 'src/environments/environment';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   messageCollection:Messages[] = [];
-  constructor(private commonService: CommonService, public modalController: ModalController) { }
+  $OnDestroy = new Subject();
+  isLoading: boolean = true;
+  isLoadingContent = [...Array(4).keys()];
+  currentState: string;
+  constructor(private commonService: CommonService, public modalController: ModalController, private dataFactory: DataFactoryService) { }
 
   ngOnInit() {
     this.recieveMessage();
     this.getMessages();
+    this.connectionState();
   }
 
   recieveMessage() {
-    try {
-      this.commonService.recieveMessage().subscribe((data: MessageText) => {
-        this.saveNewMessage(data);
-      }, error => {
-        console.log('Error', error)
-        window.location.reload();
-      })
-    } catch (error) {
-      console.log('Error', error)
-      window.location.reload();
-    }
+    this.commonService.subscribeToNewMessages.pipe(takeUntil(this.$OnDestroy)).subscribe((data) => {
+      if(data) {
+        this.getMessages();
+      }
+    })
   }
 
   ngAfterViewChecked(): void {
@@ -44,28 +46,14 @@ export class DashboardComponent implements OnInit {
     }, 300);
   }
 
-  saveNewMessage(data: MessageText) {
-    const collection: Messages[] = JSON.parse(localStorage.getItem('messagesCollection')) || [];
-    if (collection.length <= 0) {
-      const newColl: Messages = new Messages();
-      newColl.id = data.senderId;
-      newColl.email = data.senderEmail;
-      newColl.displayName = data.senderDisplayName;
-      newColl.messages = [];
-      collection.push(newColl);
-    }
-    collection?.find(col => col.id === data.senderId)?.messages?.push(data);
-    localStorage.setItem('messagesCollection', JSON.stringify(collection));
-    this.getMessages();
-  }
-
   getMessages() {
-    this.messageCollection = JSON.parse(localStorage.getItem('messagesCollection')) || [];
+    this.messageCollection = this.dataFactory.retriveMessageData;
     this.messageCollection.sort((a,b) => {
       let date1 = new Date(b?.messages[b?.messages?.length-1].timeStamp);
       let date2 = new Date(a?.messages[a?.messages?.length-1].timeStamp);
       return date1.getTime() - date2.getTime();
-    })
+    });
+    this.isLoading = false;
   }
 
   async openMessage(id, displayName,email) {
@@ -85,5 +73,23 @@ export class DashboardComponent implements OnInit {
     return `${environment.BASE_FIREBASE_STORAGE_URL}${uid}%2FprofilePicture%2Fprofile?alt=media`;
   }
 
+
+  connectionState() {
+    this.commonService.pusherConnectionState.pipe(takeUntil(this.$OnDestroy)).subscribe((data) => {
+      if(!data?.state) return;
+      console.log('Connection State => ', data?.state);
+      this.currentState = data?.state;
+      if(data?.state === 'Disconnected') {
+        window.location.reload();
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    //Called once, before the instance is destroyed.
+    //Add 'implements OnDestroy' to the class.
+    this.$OnDestroy.next();
+    this.$OnDestroy.complete();
+  }
 
 }

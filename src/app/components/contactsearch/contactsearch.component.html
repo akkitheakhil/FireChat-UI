@@ -49,6 +49,15 @@
           <p>Send</p>
         </div>
       </div>
+      <ng-container *ngIf="isLoading">
+        <div class="contact-card skeleton" *ngFor="let item of isLoadingContent">
+          <div class="img skeleton"></div>
+          <div class="userinfo skeleton">
+            <h5></h5>
+            <span></span>
+          </div>
+        </div>
+      </ng-container>
       <div class="contact-card" *ngIf="!contact && hasSearched">
         <div class="userinfo">
           <h5>No user data found</h5>

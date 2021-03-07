@@ -1,6 +1,8 @@
 <div class="content">
   <div class="header">
     <h1>FireChat</h1>
+
+    <span class="badge {{currentState}}"></span>
   </div>
   <div class="msg-container">
     <div class="messages">
@@ -8,8 +10,8 @@
     </div>
     <div class="message-list">
 
-      <ng-container *ngFor="let item of messageCollection">
-        <div class="message" (click)="openMessage(item.id, item.displayName, item.email)">
+      <ng-container  *ngIf="!this.isLoading">
+        <div class="message" (click)="openMessage(item.id, item.displayName, item.email)" *ngFor="let item of messageCollection">
           <ion-avatar>
             <img [src]="getPictureUrl(item.id)" onerror="this.src = 'assets/icon/defaultuserimage.svg'"/>
           </ion-avatar>
@@ -23,14 +25,27 @@
           </div>
         </div>
       </ng-container>
+
+      <ng-container *ngIf="isLoading">
+        <div class="message skeleton" *ngFor="let item of isLoadingContent">
+            <div class="img skeleton"></div>
+          <div class="info skeleton">
+            <h5></h5>
+            <p class="message-text skeleton"></p>
+          </div>
+          <div class="time skeleton">
+            <p></p>
+          </div>
+        </div>
+      </ng-container>
+
+
       <ng-container *ngIf="messageCollection.length <= 0">
         <div class="message">
           <div class="info">
             <h5> No messages to show.</h5>
           </div>
-
         </div>
-
       </ng-container>
 
     </div>

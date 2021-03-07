@@ -32,8 +32,12 @@
   </div>
 
   <div class="contacts-list">
-    <span *ngFor="let contact of contactsResult">
-      <div class="contact-card" (click)="openMessage(contact)">
+    <ng-container *ngIf="!isLoading">
+      <div
+        class="contact-card"
+        (click)="openMessage(contact)"
+        *ngFor="let contact of contactsResult"
+      >
         <img
           [src]="getPictureUrl(contact.uid)"
           onerror="this.src = 'assets/icon/defaultuserimage.svg'"
@@ -45,6 +49,16 @@
         <!-- <div class="badge">
         </div> -->
       </div>
-    </span>
+    </ng-container>
+
+    <ng-container *ngIf="isLoading">
+      <div class="contact-card" *ngFor="let contact of isLoadingContent">
+        <div class="img skeleton"></div>
+        <div class="info skeleton">
+          <p></p>
+          <span></span>
+        </div>
+      </div>
+    </ng-container>
   </div>
 </div>

@@ -2,11 +2,12 @@ export class MessageText {
   message: string;
   recieverId: string;
   recieverEmail: string;
+  recieverDisplayName: string;
+  senderDisplayName: string;
   senderId: string;
   senderEmail: string;
   timeStamp: string;
   hasRead: boolean;
-  senderDisplayName: string;
 }
 
 export class Messages {
@@ -20,5 +21,6 @@ export class SendMessage {
   message: string;
   recieverId: string;
   recieverEmail: string;
+  recieverDisplayName: string;
 }
 

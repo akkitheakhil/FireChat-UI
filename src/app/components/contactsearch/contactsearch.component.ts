@@ -15,6 +15,8 @@ export class ContactsearchComponent implements OnInit, OnDestroy {
 
   emailSearch: string = '';
   contact: ContactInfo;
+  isLoading: boolean = false;
+  isLoadingContent = [...Array(4).keys()];
   $OnDestroy = new Subject();
   hasSearched: boolean = false;
   constructor(private modalCtrl: ModalController, private commonService: CommonService) { }
@@ -29,10 +31,13 @@ export class ContactsearchComponent implements OnInit, OnDestroy {
 
   search() {
     if(!this.emailSearch) return;
+    this.isLoading = true;
+    this.hasSearched = false;
     this.commonService.findContact(this.emailSearch).pipe(takeUntil(this.$OnDestroy)).subscribe((data: ContactInfo) => {
       this.contact = data;
       this.hasSearched = true;
-    })
+      this.isLoading = false
+    }, err =>  {this.isLoading = false, this.hasSearched = true});
   }
 
   addContact(contact: ContactInfo) {

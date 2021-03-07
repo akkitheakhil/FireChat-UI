@@ -16,10 +16,17 @@ export class CommonService {
   pusher;
   isNative: boolean = false;
   notificationService = new BehaviorSubject(null);
+  subscribeToNewMessages = new BehaviorSubject(null);
+  pusherConnectionState = new BehaviorSubject(null);
+
 
   constructor(private http: HttpClient, private firebase: FirebaseService) {
-    const authToken = firebase.accessToken;
-    this.pusher = new Pusher('59ae8920590b277f22dc', {
+
+   }
+
+   createPusher(): Pusher {
+    const authToken = this.firebase.accessToken;
+    const pusher = new Pusher('59ae8920590b277f22dc', {
       cluster: 'ap2',
       authEndpoint: `${environment.BASE_API_URL}/api/v1/user/pusher/auth`,
       auth: {
@@ -28,13 +35,13 @@ export class CommonService {
         }
       }
     });
+    return pusher;
    }
-
 
   recieveMessage() {
     const observable = new Observable(observer => {
       const currentUser = this.firebase.currentUser.uid;
-      const channel = this.pusher.subscribe(`private-encrypted-${currentUser}`);
+      const channel = this.createPusher().subscribe(`private-encrypted-${currentUser}`);
       channel.bind('recieve-messages', (data) => {
         observer.next(
           data
@@ -47,7 +54,7 @@ export class CommonService {
   recieveFriendRequest() {
     const observable = new Observable(observer => {
       const currentUser = this.firebase.currentUser.uid;
-      const channel = this.pusher.subscribe(`private-encrypted-${currentUser}`);
+      const channel = this.createPusher().subscribe(`private-encrypted-${currentUser}`);
       channel.bind('recieve-friend-request', (data) => {
         observer.next(
           data
@@ -60,7 +67,7 @@ export class CommonService {
   recieveRequestAccepted() {
     const observable = new Observable(observer => {
       const currentUser = this.firebase.currentUser.uid;
-      const channel = this.pusher.subscribe(`private-encrypted-${currentUser}`);
+      const channel = this.createPusher().subscribe(`private-encrypted-${currentUser}`);
       channel.bind('recieve-request-accepted', (data) => {
         observer.next(
           data
@@ -68,6 +75,29 @@ export class CommonService {
       });
     });
     return observable;
+  }
+
+  pusherConnectionStateSubscription() {
+   const currentUser = this.firebase.currentUser.uid;
+    this.createPusher().connection.bind('error', (error) => {
+      if(error) {
+        console.log(error);
+        this.firebase.checkAuthState();
+        this.pusherConnectionState.next({ state: 'Disconnected', message: error });
+      }
+    });
+
+    this.createPusher().connection.bind('connected', () => {
+      this.pusherConnectionState.next({ state: 'Online', message: 'Connnected' })
+    });
+
+    this.createPusher().subscribe(`private-encrypted-${currentUser}`).bind('pusher:subscription_error', (error) =>  {
+      if(error) {
+        console.log(error);
+        this.firebase.checkAuthState();
+        this.pusherConnectionState.next({ state: 'Disconnected', message: error });
+      }
+    });
   }
 
   findContact(email: string): Observable<ContactInfo> {

@@ -7,7 +7,14 @@
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 0
+    },
+    "Keyboard" : {
+      "resize": "ionic"
     }
+  },
+  "server": {
+    "hostname": "firechat.ngx",
+    "androidScheme": "https"
   },
   "cordova": {}
 }

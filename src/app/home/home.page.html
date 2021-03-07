@@ -17,9 +17,9 @@
       <ion-icon name="people{{currentNav === 'contacts' ? '': '-outline'}}"></ion-icon>
       <span class="badge" *ngIf="contactBadge"></span>
     </i>
-    <i [routerLink]="['/home/profile']" routerLinkActive="active" (click)="navChange('notifications')"
+    <i [routerLink]="['/home/profile']" routerLinkActive="active" (click)="navChange('profile')"
       >
-      <ion-icon name="person{{currentNav === 'notifications' ? '': '-outline'}}"></ion-icon>
+      <ion-icon name="person{{currentNav === 'profile' ? '': '-outline'}}"></ion-icon>
       <span class="badge" *ngIf="friendRequest"></span>
     </i>
     <i [routerLink]="['/home/settings']" routerLinkActive="active" (click)="navChange('settings')"

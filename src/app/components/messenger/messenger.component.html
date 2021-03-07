@@ -5,13 +5,18 @@
       <div class="back-btn">
         <i (click)="dismiss()"><img src="assets/icon/back-left-curved-arrow.svg" alt="back button"></i>
       </div>
-      <ion-avatar>
-        <img [src]="getPictureUrl(uid)" onerror="this.src = 'assets/icon/defaultuserimage.svg'" class="avatar"/>
-      </ion-avatar>
-      <div class="userinfo">
-        <h5>{{displayName}}</h5>
-        <p>{{email}}</p>
+      <div class="user-profile">
+        <ion-avatar>
+          <img [src]="getPictureUrl(uid)" onerror="this.src = 'assets/icon/defaultuserimage.svg'" class="avatar"/>
+        </ion-avatar>
+        <div class="userinfo">
+          <h5>{{displayName}}</h5>
+          <p>{{email}}</p>
+        </div>
       </div>
+
+      <ion-icon name="ellipsis-vertical" (click)="presentActionSheet()"></ion-icon>
+
     </div>
 
     <div class="message-container" #scrollMe>
@@ -28,7 +33,7 @@
         <input type="text" name="send" id="send">
       </div> -->
       <textarea id="textarea" class="text-area" name="text-area" rows="2" [(ngModel)]="messageText"></textarea>
-      <div class="send-btn" (click)="sendMessage(messageText)">
+      <div class="send-btn" (click)="sendMessage()" >
         <img src="assets/icon/send.svg" alt="Send button">
       </div>
     </div>
